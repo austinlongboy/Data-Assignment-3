@@ -129,7 +129,7 @@ print(at_cyclone)
 np_cyclone <- str_c(cyclone_data_address, np_cyclone_filename, sep = "") |>
     # ALL of the steps all over again
     # YOUR CODE HERE
-
+#AUSTIN
 print(np_cyclone)
 ```
 
@@ -145,6 +145,8 @@ Name the data frame `cyclones_data_update_0`.
 
 ```{r error=TRUE}
 # YOUR CODE HERE
+#FRANCO
+bind_rows(at_cyclone, np_cyclone)
 
 print(cyclones_data_update_0)
 ```
@@ -164,6 +166,7 @@ There are many ways to solve this. My solution is one line and uses `parse_numbe
 ```{r convert_latlon, error=TRUE}
 convert_latlon <- function(latlon) {
     # YOUR CODE HERE
+#AUSTIN
 }
 
 test_data <- c("49W", "49.99W", "49E", "49.99E", "49N", "49.99S", "-0.0W")
@@ -194,7 +197,14 @@ To do this, you must choose whether to use `ObservYear` or `NameYear`.
 ```{r cyclones_data_update_2, error=TRUE}
 cyclones_data_update_2 <- cyclones_data_update_1 |>
     mutate(
-        # YOUR CODE HERE
+        # YOUR CODE HERE 
+#FRANCO
+date = make_datetime(
+    year = ObservYear,
+    month = Month,
+    day = Day,
+    hour = Hour
+  )
     )
 
 print(cyclones_data_update_2)
@@ -217,6 +227,7 @@ cyclones_data <- cyclones_data_update_2 |>
         category = ordered(
             case_when(
                 # YOUR CODE HERE
+#AUSTIN
             ),
             levels = cat_levels
         )
@@ -236,6 +247,10 @@ print(cyclones_data)
 Now that we have a suitable data frame, save it as a parquet file with the file name `"cyclones_data.parquet"`.
 ```{r}
 # YOUR CODE HERE
+#FRANCO
+library(arrow)
+
+write_parquet(cyclones_data_update_0, "cyclones_data.parquet")
 ```
 
 
@@ -354,7 +369,7 @@ In the chunk below, find the maximum and minimum sea ice extent for each year (b
 ```{r}
 ice_extent_yearly <- ice_extent_daily |>
     # YOUR CODE HERE
-
+#AUSTIN
 ice_extent_yearly
 ```
 
@@ -381,6 +396,8 @@ Finally, let's save the data to `ice_extent_yeary.parquet`.
 
 ```{r sea_ice_parquet, error=TRUE}
 # YOUR CODE HERE
+#FRANCO
+write_parquet(ice_extent_yearly, "ice_extent_yearly.parquet")
 ```
 
 ```{r}
@@ -463,7 +480,7 @@ In the chunk below, aggregate the data to be total cases in 2020, by country. Yo
 
 ```{r covid_2020, error=TRUE}
 # YOUR CODE HERE
-
+#AUSTIN
 covid_2020
 ```
 
@@ -475,6 +492,10 @@ Before we move on, we'll save `covid_2020.parquet` for use in Part 2.
 
 ```{r covid_2020_parquet, error=TRUE}
 # YOUR CODE HERE
+
+#FRANCO
+
+write_parquet(covid_2020, "covid_2020.parquet" 
 ```
 
 ```{r}
@@ -515,6 +536,7 @@ aware_fixed_country <- climate_awareness |>
     mutate(
         # Replace *all* *literal* periods with a space in the country column
         # YOUR CODE HERE
+#AUSTIN
     )
 
 aware_fixed_country |> pull(country) |> unique()
@@ -540,12 +562,27 @@ That's slightly less than what we need to deal with! Overall, the `pop_data` has
 
 Use a `case_when()` statement to change the countries in `aware_fixed_country` where possible. Specifically, fix the following:
 
-- "Bolivia (Plurinational State of)", "Congo (Democratic Republic of the)", "Egypt", "Hong Kong", "Lao People's Democratic Republic", "Slovakia", "North MAcedonia", "South Korea" (be careful with this one!), "Turkey", "Vietnam", "Yemen".
+- "Bolivia (Plurinational State of)", "Congo (Democratic Republic of the)", "Egypt", "Hong Kong", "Lao People's Democratic Republic", "Slovakia", "North Macedonia", "South Korea" (be careful with this one!), "Turkey", "Vietnam", "Yemen".
 ```{r aware_fixed_country_match}
 aware_fixed_country_match <- aware_fixed_country |>
     mutate(
         # Change country using a case_when statement
         # YOUR CODE HERE
+#FRANCO
+country = case_when(
+      country == "Bolivia (Plurinational State of)" ~ "Bolivia",
+      country == "Congo (Democratic Republic of the)" ~ "Democratic Republic of the Congo",
+      country == "Egypt" ~ "Egypt",
+      country == "Hong Kong" ~ "Hong Kong SAR, China",
+      country == "Lao People's Democratic Republic" ~ "Laos",
+      country == "Slovakia" ~ "Slovak Republic",
+      country == "North Macedonia" ~ "Republic of North Macedonia",
+      country == "South Korea" ~ "Republic of Korea",
+      country == "Turkey" ~ "Türkiye",
+      country == "Vietnam" ~ "Vietnam",
+      country == "Yemen" ~ "Yemen",
+      TRUE ~ country
+    )
     )
 
 aware_countries <- aware_fixed_country_match |> pull(country)
@@ -565,6 +602,7 @@ Now we can join! Use a [join](https://dplyr.tidyverse.org/reference/mutate-joins
 ```{r aware_pop, error=TRUE}
 # YOUR CODE HERE
 
+#AUSTIN
 aware_pop
 ```
 
@@ -584,7 +622,7 @@ setdiff(aware_countries, covid_countries)
 
 ```{r covid_2020_match_country, error=TRUE}
 # YOUR CODE HERE
-
+#FRANCO
 covid_2020_match_country
 ```
 
@@ -598,7 +636,7 @@ Join `aware_pop` and `covid_2020_match_country`, again only keep countries that 
 
 ```{r aware_covid, error=TRUE}
 # YOUR CODE HERE
-
+#AUSTIN
 aware_covid
 ```
 
@@ -660,7 +698,15 @@ To make the data more convenient for Part 2, perform the following operations. T
 ```{r happiness}
 happiness <- read.xlsx("DataForTable2.1.xlsx") |>
     # YOUR CODE HERE
+#FRANCO
 
+whr_clean <- whr_raw |>
+  clean_names() |>                             
+  rename(country = country_name) |>              
+  filter(!is.na(ladder_score)) |>                
+  group_by(country) |>                            
+  slice_max(year, n = 1, with_ties = FALSE) |>  
+  ungroup()  
 happiness
 ```
 ```{r}
