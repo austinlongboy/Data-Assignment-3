@@ -1,6 +1,6 @@
 ---
 title: "Exploring Disparate Data: Part 1"
-author: "Put your group name here: (anyname that is fancy and funny)"
+author: "Data100 is my personal hell"
 date: "Due November 12th, 2025"
 ---
 
@@ -21,8 +21,8 @@ library(openxlsx)
 
 List all group members here (maximum *3* and minimum *2*):
 
-- 
-- 
+- Austin Liu   
+- Franco Mejia Batres
 - 
 
 This file will be submitted as an Rmd file to GradeScope. You will need to create a group on GradeScope with the correct members. *If the person who submits this does not list you, you will not get a grade on this assignment!!!* Make sure you trust the person who is submitting it!
@@ -66,57 +66,66 @@ new_columns <- c("status", "latitude", "longitude", "max_wind",
 
 # Same steps as in A2, but you can put them all in the same pipeline!
 at_cyclone <- str_c(cyclone_data_address, at_cyclone_filename, sep = "") |>
-    read_csv(
-        col_names = c(as.character(1:4)),
-        progress = FALSE,
-        show_col_types = FALSE
-    ) |>
-    separate_wider_delim(
-        cols = `4`,
-        # Set the delim and the names
-        # YOUR CODE HERE
-    ) |>
-    mutate(
-        across(everything(), str_trim),
-        # make "-999" NAs, make "-99" NAs
-        # Create columns BasinNumberYear, Name, and Entries
-        across(everything(), ~na_if(., "-999")),
-        across(everything(), ~na_if(., "-99")),
-        BasinNumberYear = ifelse(is.na(status), `1`, NA),
-        Name = ifelse(is.na(status), `2`, NA),
-        Entries = ifelse(is.na(status), `3`, NA)
-    ) |>
-    relocate(BasinNumberYear, Name, Entries) |>
-    fill(BasinNumberYear, Name, Entries) |>
-    filter(!is.na(status))  |>
-    select(-Entries) |>
-    separate_wider_position(
-        BasinNumberYear,
-        # Specify the widths
-        # YOUR CODE HERE
-    ) |>
-    separate_wider_position(
-        `1`,
-        # Specify the widths
-        # YOUR CODE HERE
-    ) |>
-    separate_wider_position(
-        `2`,
-        # Specify the widths
-        # YOUR CODE HERE
-    ) |>
-    rename(
-        Identifier = `3`
-    ) |>
-    mutate(
-        across(
-            c(NameYear, ObservYear, Month, Day, Hour,
-                Minute, Number),
-            as.integer
-        )
-    ) |>
-    mutate(across(max_wind:r_max_wind, as.numeric))
+  read_csv(
+    col_names = c(as.character(1:4)),
+    progress = FALSE,
+    show_col_types = FALSE
+  ) |>
+  separate_wider_delim(
+    cols = `4`,
+    delim = ",",
+    names = new_columns
+  ) |>
+  mutate(
+    # trim everything
+    across(everything(), str_trim),
+    # make "-999" and "-99" NAs (once)
+    across(everything(), ~ .x |> na_if("-999") |> na_if("-99")),
+    BasinNumberYear = if_else(is.na(status), `1`, NA_character_),
+    Name            = if_else(is.na(status), `2`, NA_character_),
+    Entries         = if_else(is.na(status), `3`, NA_character_)
+  ) |>
+  relocate(BasinNumberYear, Name, Entries) |>
+  fill(BasinNumberYear, Name, Entries) |>
+  filter(!is.na(status)) |>
+  select(-Entries) |>
+  separate_wider_position(
+    col = BasinNumberYear,
+    widths = c(
+      Basin    = 2,
+      Number   = 2,
+      NameYear = 4
+    )
+  ) |>
+  
+  separate_wider_position(
+    col = `1`,
+    widths = c(
+      ObservYear = 4,
+      Month      = 2,
+      Day        = 2
+    )
+  ) |>
 
+  separate_wider_position(
+    col = `2`,
+    widths = c(
+      Hour = 2,
+      Minute = 2
+    )
+  ) |>
+
+  rename(
+    Identifier = `3`
+  ) |>
+
+    mutate(
+    across(
+      c(NameYear, ObservYear, Month, Day, Hour, Minute, Number),
+      as.integer
+    ),
+    across(max_wind:r_max_wind, as.numeric)
+  )
 
 print(at_cyclone)
 ```
@@ -127,10 +136,69 @@ print(at_cyclone)
 
 ```{r}
 np_cyclone <- str_c(cyclone_data_address, np_cyclone_filename, sep = "") |>
-    # ALL of the steps all over again
-    # YOUR CODE HERE
-#AUSTIN
+  read_csv(
+    col_names = c(as.character(1:4)),
+    progress = FALSE,
+    show_col_types = FALSE
+  ) |>
+  separate_wider_delim(
+    cols = `4`,
+    delim = ",",
+    names = new_columns
+  ) |>
+  mutate(
+    # trim everything
+    across(everything(), str_trim),
+    # make "-999" and "-99" NAs (once)
+    across(everything(), ~ .x |> na_if("-999") |> na_if("-99")),
+    BasinNumberYear = if_else(is.na(status), `1`, NA_character_),
+    Name            = if_else(is.na(status), `2`, NA_character_),
+    Entries         = if_else(is.na(status), `3`, NA_character_)
+  ) |>
+  relocate(BasinNumberYear, Name, Entries) |>
+  fill(BasinNumberYear, Name, Entries) |>
+  filter(!is.na(status)) |>
+  select(-Entries) |>
+  separate_wider_position(
+    col = BasinNumberYear,
+    widths = c(
+      Basin    = 2,
+      Number   = 2,
+      NameYear = 4
+    )
+  ) |>
+  
+  separate_wider_position(
+    col = `1`,
+    widths = c(
+      ObservYear = 4,
+      Month      = 2,
+      Day        = 2
+    )
+  ) |>
+
+  separate_wider_position(
+    col = `2`,
+    widths = c(
+      Hour = 2,
+      Minute = 2
+    )
+  ) |>
+
+  rename(
+    Identifier = `3`
+  ) |>
+
+    mutate(
+    across(
+      c(NameYear, ObservYear, Month, Day, Hour, Minute, Number),
+      as.integer
+    ),
+    across(max_wind:r_max_wind, as.numeric)
+  )
+
 print(np_cyclone)
+#AUSTIN
 ```
 
 ```{r}
@@ -146,7 +214,7 @@ Name the data frame `cyclones_data_update_0`.
 ```{r error=TRUE}
 # YOUR CODE HERE
 #FRANCO
-bind_rows(at_cyclone, np_cyclone)
+cyclones_data_update_0 <- bind_rows(at_cyclone, np_cyclone)
 
 print(cyclones_data_update_0)
 ```
@@ -165,8 +233,11 @@ There are many ways to solve this. My solution is one line and uses `parse_numbe
 
 ```{r convert_latlon, error=TRUE}
 convert_latlon <- function(latlon) {
-    # YOUR CODE HERE
-#AUSTIN
+  if_else(
+    str_detect(latlon, "[SW]"),
+    -parse_number(latlon),
+     parse_number(latlon)
+  )
 }
 
 test_data <- c("49W", "49.99W", "49E", "49.99E", "49N", "49.99S", "-0.0W")
@@ -197,14 +268,7 @@ To do this, you must choose whether to use `ObservYear` or `NameYear`.
 ```{r cyclones_data_update_2, error=TRUE}
 cyclones_data_update_2 <- cyclones_data_update_1 |>
     mutate(
-        # YOUR CODE HERE 
-#FRANCO
-date = make_datetime(
-    year = ObservYear,
-    month = Month,
-    day = Day,
-    hour = Hour
-  )
+        date = make_datetime(ObservYear)
     )
 
 print(cyclones_data_update_2)
@@ -226,8 +290,14 @@ cyclones_data <- cyclones_data_update_2 |>
     mutate(
         category = ordered(
             case_when(
-                # YOUR CODE HERE
-#AUSTIN
+              max_wind < 34 ~ "TD",
+              max_wind >= 34 & max_wind < 64 ~ "TS",
+              max_wind >= 64 & max_wind < 83 ~ "1",
+              max_wind >= 83 & max_wind < 96 ~ "2",
+              max_wind >= 96 & max_wind < 113 ~ "3",
+              max_wind >= 113 & max_wind < 137 ~ "4",
+              max_wind >= 137 ~ "5",
+              TRUE ~ NA_character_
             ),
             levels = cat_levels
         )
@@ -246,11 +316,7 @@ print(cyclones_data)
 
 Now that we have a suitable data frame, save it as a parquet file with the file name `"cyclones_data.parquet"`.
 ```{r}
-# YOUR CODE HERE
-#FRANCO
-library(arrow)
-
-write_parquet(cyclones_data_update_0, "cyclones_data.parquet")
+write_parquet(cyclones_data, "cyclones_data.parquet")
 ```
 
 
@@ -368,8 +434,18 @@ In the chunk below, find the maximum and minimum sea ice extent for each year (b
 
 ```{r}
 ice_extent_yearly <- ice_extent_daily |>
-    # YOUR CODE HERE
-#AUSTIN
+  group_by(year, region) |>
+  summarise(
+    min = min(ice_extent, na.rm = TRUE),
+    max = max(ice_extent, na.rm = TRUE),
+    .groups = "drop"
+  ) |>
+  pivot_longer(
+    cols = c(min, max),
+    names_to = "name",
+    values_to = "value"
+  )
+
 ice_extent_yearly
 ```
 
@@ -397,7 +473,8 @@ Finally, let's save the data to `ice_extent_yeary.parquet`.
 ```{r sea_ice_parquet, error=TRUE}
 # YOUR CODE HERE
 #FRANCO
-write_parquet(ice_extent_yearly, "ice_extent_yearly.parquet")
+write_parquet(ice_extent_yearly, "ice_extent_yeary.parquet")
+
 ```
 
 ```{r}
@@ -481,6 +558,20 @@ In the chunk below, aggregate the data to be total cases in 2020, by country. Yo
 ```{r covid_2020, error=TRUE}
 # YOUR CODE HERE
 #AUSTIN
+covid_2020 <- covid_cases |>
+  filter(
+    !is.na(continent)
+    ) |>  
+  filter(
+    lubridate::year(date) == 2020
+    ) |>   
+  group_by(
+    country = location, 
+    continent) |> 
+  summarize(
+    total_cases = max(total_cases, na.rm = TRUE),
+    .groups = "drop"
+    )
 covid_2020
 ```
 
@@ -495,7 +586,7 @@ Before we move on, we'll save `covid_2020.parquet` for use in Part 2.
 
 #FRANCO
 
-write_parquet(covid_2020, "covid_2020.parquet" 
+write_parquet(covid_2020, "covid_2020.parquet") 
 ```
 
 ```{r}
@@ -532,12 +623,7 @@ Many of these countries are actually in both, but have a different name! Before 
     - NOTE: The `.` is a special character in regex and needs to be [escaped](https://r4ds.hadley.nz/regexps#sec-regexp-escaping)!
 
 ```{r aware_fixed_country, error=TRUE}
-aware_fixed_country <- climate_awareness |>
-    mutate(
-        # Replace *all* *literal* periods with a space in the country column
-        # YOUR CODE HERE
-#AUSTIN
-    )
+mutate(country = str_replace_all(country, "\\.", " "))
 
 aware_fixed_country |> pull(country) |> unique()
 ```
@@ -565,25 +651,23 @@ Use a `case_when()` statement to change the countries in `aware_fixed_country` w
 - "Bolivia (Plurinational State of)", "Congo (Democratic Republic of the)", "Egypt", "Hong Kong", "Lao People's Democratic Republic", "Slovakia", "North Macedonia", "South Korea" (be careful with this one!), "Turkey", "Vietnam", "Yemen".
 ```{r aware_fixed_country_match}
 aware_fixed_country_match <- aware_fixed_country |>
-    mutate(
-        # Change country using a case_when statement
-        # YOUR CODE HERE
-#FRANCO
-country = case_when(
+  mutate(
+    country = case_when(
       country == "Bolivia (Plurinational State of)" ~ "Bolivia",
-      country == "Congo (Democratic Republic of the)" ~ "Democratic Republic of the Congo",
-      country == "Egypt" ~ "Egypt",
+      country == "Congo (Democratic Republic of the)" ~ "Congo, Dem. Rep.",
       country == "Hong Kong" ~ "Hong Kong SAR, China",
-      country == "Lao People's Democratic Republic" ~ "Laos",
+      country == "Vietnam" ~ "Viet Nam",
+      country == "South Korea" ~ "Korea, Dem. People's Rep.",
+      country == "Sub-Saharan Africa" ~ "Central African Republic",
+      country == "Egypt" ~ "Egypt, Arab Rep.",
+      country == "North MAcedonia" ~ "North Macedonia",
       country == "Slovakia" ~ "Slovak Republic",
-      country == "North Macedonia" ~ "Republic of North Macedonia",
-      country == "South Korea" ~ "Republic of Korea",
-      country == "Turkey" ~ "Türkiye",
-      country == "Vietnam" ~ "Vietnam",
-      country == "Yemen" ~ "Yemen",
+      country == "Turkey" ~ "Turkiye",
+      country == "Puerto Rico" ~ "Puerto Rico (US)",
+      country == "Yemen" ~ "Yemen, Rep.",
       TRUE ~ country
-    )
-    )
+     )
+  )
 
 aware_countries <- aware_fixed_country_match |> pull(country)
 print("Countries in aware_countries that aren't in pop_data:")
@@ -600,9 +684,22 @@ The remaining countries are either broader geopolitical areas rather than countr
 Now we can join! Use a [join](https://dplyr.tidyverse.org/reference/mutate-joins.html) that only keeps countries that are in both data sets. The final data frame should have the columns `country`, `total_population`, `aware_no`, `aware_alittle`, `aware_moderate`, `aware_alot`, and `aware_refuse`.
 
 ```{r aware_pop, error=TRUE}
-# YOUR CODE HERE
+aware_pop <- aware_fixed_country_match |>
+  inner_join(
+    pop_data |> 
+      select(country, total_population = SP.POP.TOTL),
+    by = "country"
+  ) |>
+  select(
+    country, 
+    total_population, 
+    aware_no, 
+    aware_alittle, 
+    aware_moderate, 
+    aware_alot, 
+    aware_refuse
+  )
 
-#AUSTIN
 aware_pop
 ```
 
@@ -623,7 +720,52 @@ setdiff(aware_countries, covid_countries)
 ```{r covid_2020_match_country, error=TRUE}
 # YOUR CODE HERE
 #FRANCO
-covid_2020_match_country
+covid_2020_match_country <- covid_2020 |>
+  mutate(
+    country = case_when(
+      country == "Bolivia (Plurinational State of)" ~ "Bolivia",
+      country == "Congo (Democratic Republic of the)" ~ "Congo, Dem. Rep.",
+      country == "Hong Kong" ~ "Hong Kong SAR, China",
+      country == "Vietnam" ~ "Viet Nam",
+      country == "South Korea" ~ "Korea, Rep.",
+      country == "Sub-Saharan Africa" ~ "Central African Republic",
+      country == "Egypt" ~ "Egypt, Arab Rep.",
+      country == "North MAcedonia" ~ "North Macedonia",
+      country == "Slovakia" ~ "Slovak Republic",
+      country == "Turkey" ~ "Turkiye",
+      country == "Puerto Rico" ~ "Puerto Rico (US)",
+      country == "Yemen" ~ "Yemen, Rep.",
+
+      country == "Bahamas" ~ "Bahamas, The",
+      country == "Brunei" ~ "Brunei Darussalam",
+      country == "Cape Verde" ~ "Cabo Verde",
+      country == "Congo" ~ "Congo, Rep.",
+      country == "Democratic Republic of Congo" ~ "Congo, Dem. Rep.",
+      country == "East Timor" ~ "Timor-Leste",
+      country == "Gambia" ~ "Gambia, The",
+      country == "Iran" ~ "Iran, Islamic Rep.",
+      country == "Kyrgyzstan" ~ "Kyrgyz Republic",
+      country == "Laos" ~ "Lao PDR",
+      country == "Micronesia (country)" ~ "Micronesia, Fed. Sts.",
+      country == "North Korea" ~ "Korea, Dem. People's Rep.",
+      country == "Palestine" ~ "West Bank and Gaza",
+      country == "Russia" ~ "Russian Federation",
+      country == "Saint Kitts and Nevis" ~ "St. Kitts and Nevis",
+      country == "Saint Lucia" ~ "St. Lucia",
+      country == "Saint Martin (French part)" ~ "St. Martin (French part)",
+      country == "Saint Vincent and the Grenadines" ~ "St. Vincent and the Grenadines",
+      country == "Somalia" ~ "Somalia, Fed. Rep.",
+      country == "Syria" ~ "Syrian Arab Republic",
+      country == "Taiwan" ~ "Taiwan, China",
+      country == "United States Virgin Islands" ~ "Virgin Islands (U.S.)",
+      country == "Venezuela" ~ "Venezuela, RB",
+
+      TRUE ~ country
+    )
+  ) |> filter(!is.na(country)) 
+
+covid_countries <- covid_2020_match_country |> pull(country)
+setdiff(covid_countries, pop_countries) |> sort()
 ```
 
 ```{r}
@@ -635,8 +777,14 @@ Okay, now take a quick breather. Grab a tea, go for a walk, rock out to some mus
 Join `aware_pop` and `covid_2020_match_country`, again only keep countries that are in both. Create a new column called `covid_per_capita` based on the total cases divided by total population.
 
 ```{r aware_covid, error=TRUE}
-# YOUR CODE HERE
-#AUSTIN
+aware_covid <- aware_pop |>
+  inner_join(
+    covid_2020_match_country |> 
+      select(country, total_cases, continent),
+    by = "country"
+  ) |>
+  mutate(cases_per_capita = total_cases / total_population)
+
 aware_covid
 ```
 
@@ -696,17 +844,14 @@ To make the data more convenient for Part 2, perform the following operations. T
 
 
 ```{r happiness}
+library(janitor)
 happiness <- read.xlsx("DataForTable2.1.xlsx") |>
-    # YOUR CODE HERE
-#FRANCO
+  clean_names() |>
+  rename(country = country_name) |>
+  filter(!is.na(ladder_score)) |>
+  group_by(country) |>
+  slice_max(order_by = year, n = 1)
 
-whr_clean <- whr_raw |>
-  clean_names() |>                             
-  rename(country = country_name) |>              
-  filter(!is.na(ladder_score)) |>                
-  group_by(country) |>                            
-  slice_max(year, n = 1, with_ties = FALSE) |>  
-  ungroup()  
 happiness
 ```
 ```{r}
